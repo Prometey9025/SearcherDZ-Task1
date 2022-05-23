@@ -1,5 +1,7 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 public class Searcher {
@@ -14,7 +16,19 @@ public class Searcher {
     }
 
     public static void main(String[] args) {
+        String directory  = input();
 
+        Searcher searcher = new Searcher(directory);
+
+        File file = new File(searcher.directory);
+        searcher.search(file);
+
+        searcher.sort();
+
+        searcher.write();
+
+        System.out.println(String.format("Всего найдено txt файлов : %d, данные из которых были записаны " +
+                "в итоговый файл: %s", searcher.filesList.size(),searcher.resultPath));
 
     }
 
@@ -62,5 +76,41 @@ public class Searcher {
         }
 
     }
+
+    //метод для сортировки файлов по названию
+    public void sort(){
+
+        Comparator<File> comparator = new Comparator<File>() {
+            @Override
+            public int compare(File o1, File o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        };
+
+        Collections.sort(this.filesList, comparator);
+
+    }
+
+    //метод для записи содержимого файлов в итоговый файл
+    public void write() {
+        try{
+            BufferedWriter bw = new BufferedWriter(new FileWriter(this.resultPath));
+            for ( File file : this.filesList ) {
+                try(BufferedReader br = new BufferedReader(new FileReader(file.toString())))
+                {
+                    while (br.ready()){
+                        bw.write(br.readLine());
+                        bw.newLine();
+                    }
+                }
+            }
+            bw.close();
+
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+    }
+
+
 
 }
